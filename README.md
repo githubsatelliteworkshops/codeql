@@ -16,10 +16,19 @@
 
 ## :mega: Prerequisites
 - Install [Visual Studio Code](https://code.visualstudio.com/).
-- Install the CodeQL extension for Visual Studio Code. [Full setup instructions are here.](https://help.semmle.com/codeql/codeql-for-vscode/procedures/setting-up.html)
+- Install the [CodeQL extension for Visual Studio Code](https://help.semmle.com/codeql/codeql-for-vscode/procedures/setting-up.html).
+- You do _not_ need to install the CodeQL CLI: the extension will handle this for you.
 - Set up the [CodeQL starter workspace](https://help.semmle.com/codeql/codeql-for-vscode/procedures/setting-up.html#using-the-starter-workspace).
   - **Important:** Don't forget to use `git clone --recursive` or `git submodule update --init --remote` to update the submodules when you clone this repository. This allows you to obtain the standard CodeQL query libraries.
   - Open the starter workspace in Visual Studio Code: **File** > **Open Workspace** > Browse to `vscode-codeql-starter/vscode-codeql-starter.code-workspace` in your checkout of the starter workspace.
+- Download and add the CodeQL database to be used in the workshop:
+  - If you are attending **Finding security vulnerabilities in Java with CodeQL**, please download [this CodeQL database](https://downloads.lgtm.com/snapshots/java/apache/struts/apache-struts-91ae344-CVE-2017-9805.zip).
+  - If you are attending **Finding security vulnerabilities in JavaScript with CodeQL**, please visit [this project page on LGTM.com](https://lgtm.com/projects/g/esbena/bootstrap-pre-27047/ci/#ql), create an account (you can log in via OAuth using a GitHub account), and click to download the latest database for JavaScript.
+  - Unzip the database.
+  - Import the unzipped database into Visual Studio Code:
+    - Click the CodeQL icon in the left sidebar.
+    - Place your mouse over **Databases**, and click the `+` sign that appears on the right.
+    - Choose the unzipped database directory on your filesystem.
 
 ## :books: Resources
 - [Learning CodeQL](https://help.semmle.com/QL/learn-ql)
