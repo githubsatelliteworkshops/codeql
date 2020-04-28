@@ -10,14 +10,21 @@
 
 > There are two workshops on this topic. Both will cover the basics of writing queries in CodeQL. The first will focus on Java, and the second will focus on JavaScript.
 
-## :clock: Workshop times
+## :watch: Workshop times
 1. Thursday May 7 / 7:00am: Finding security vulnerabilities in Java with CodeQL
 1. Thursday May 7 / 9:30am: Finding security vulnerabilities in JavaScript with CodeQL
 
 ## :mega: Prerequisites
-- point 1
-- point 2
+- Install [Visual Studio Code](https://code.visualstudio.com/).
+- Install the CodeQL extension for Visual Studio Code. [Full setup instructions are here.](https://help.semmle.com/codeql/codeql-for-vscode/procedures/setting-up.html)
+- Set up the [CodeQL starter workspace](https://help.semmle.com/codeql/codeql-for-vscode/procedures/setting-up.html#using-the-starter-workspace).
+  - **Important:** Don't forget to use `git clone --recursive` or `git submodule update --init --remote` to update the submodules when you clone this repository. This allows you to obtain the standard CodeQL query libraries.
+  - Open the starter workspace in Visual Studio Code: **File** > **Open Workspace** > Browse to `vscode-codeql-starter/vscode-codeql-starter.code-workspace` in your checkout of the starter workspace.
 
 ## :books: Resources
-- [Resource 1]()
-- [Resource 2]()
+- [Learning CodeQL](https://help.semmle.com/QL/learn-ql)
+- [Learning CodeQL for Java](https://help.semmle.com/QL/learn-ql/java/ql-for-java.html)
+- [Learning CodeQL for JavaScript](https://help.semmle.com/QL/learn-ql/javascript/ql-for-javascript.html)
+- [Using the CodeQL extension for VS Code](https://help.semmle.com/codeql/codeql-for-vscode.html)
+- More about CodeQL on [GitHub Security Lab](https://securitylab.github.com/tools/codeql)
+- CodeQL on [GitHub Learning Lab](https://lab.github.com/githubtraining/codeql-u-boot-challenge-(cc++))
