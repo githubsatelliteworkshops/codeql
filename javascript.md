@@ -3,7 +3,17 @@
 - Analyzed language: JavaScript
 - Difficulty level: 200
 
-## Problem statement
+## Overview
+
+ - [Problem statement](#problemstatement)
+ - [Setup instructions](#setupinstructions)
+ - [Documentation links](#documentationlinks)
+ - [Workshop](#workshop)
+   - [Section 1: Finding XML deserialization](#section1)
+   - [Section 2: Find the implementations of the `toObject` method from ContentTypeHandler](#section2)
+   - [Section 3: Unsafe XML deserialization](#section3)
+
+## Problem statement <a id="problemstatement"></a>
 
 jQuery is an extremely popular, but old, open source JavaScript library designed to simplify things like HTML document traversal and manipulation, event handling, animation, and Ajax. The jQuery library supports modular plugins to extend its capabilities. Bootstrap is another popular JavaScript library, which has used jQuery's plugin mechanism extensively. However, the jQuery plugins inside Bootstrap used to be implemented in an unsafe way that could make the users of Bootstrap vulnerable to cross-site scripting (XSS) attacks. This is when an attacker uses a web application to send malicious code, generally in the form of a browser side script, to a different end user.
 
@@ -26,11 +36,9 @@ let text = $(document).find(options.textSrcSelector).text();
 
 In this challenge, we will use CodeQL to analyze the source code of Bootstrap, taken from before these vulnerabilities were patched, and identify the vulnerabilities.
 
-## Setup instructions
+## Setup instructions for Visual Studio Code <a id="setupinstructions"></a>
 
-### Writing queries on your local machine (recommended)
-
-To run CodeQL queries on Bootstrap offline, follow these steps:
+To take part in the workshop you will need to follow these steps to get the CodeQL development environment set up:
 
 1. Install the Visual Studio Code IDE.
 1. Download and install the [CodeQL extension for Visual Studio Code](https://help.semmle.com/codeql/codeql-for-vscode.html). Full setup instructions are [here](https://help.semmle.com/codeql/codeql-for-vscode/procedures/setting-up.html).
@@ -47,25 +55,17 @@ To run CodeQL queries on Bootstrap offline, follow these steps:
     - Choose the unzipped database directory on your filesystem.
 1. Create a new file, name it `UnsafeDollarCall.ql`, save it under `codeql-custom-queries-javascript`.
 
-### Writing queries in the browser
-
-To run CodeQL queries on Bootstrap online, follow these steps:
-
-1. Create an account on LGTM.com if you haven't already. You can log in via OAuth using your Google or GitHub account.
-1. [Start querying the Bootstrap project](https://lgtm.com/query/project:1510734246425/lang:javascript/).
-    - Alternative: Visit the [vulnerable Bootstrap project page](https://lgtm.com/projects/g/esbena/bootstrap-pre-27047) and click **Query this project**.
-
-
-## Documentation links
+## Documentation links <a id="documentationlinks"></a>
 If you get stuck, try searching our documentation and blog posts for help and ideas. Below are a few links to help you get started:
 - [Learning CodeQL](https://help.semmle.com/QL/learn-ql)
 - [Learning CodeQL for JavaScript](https://help.semmle.com/QL/learn-ql/javascript/ql-for-javascript.html)
 - [Using the CodeQL extension for VS Code](https://help.semmle.com/codeql/codeql-for-vscode)
 
-## Challenge
-The challenge is split into several steps. You can write one query per step, or work with a single query that you refine at each step.
+## Workshop <a id="workshop"></a>
 
-Each step has a **Hint** that describe useful classes and predicates in the CodeQL standard libraries for JavaScript and keywords in CodeQL. You can explore these in your IDE using the autocomplete suggestions and jump-to-definition command.
+The workshop is split into several steps. You can write one query per step, or work with a single query that you refine at each step.
+
+Each step has a **Hint** that describe useful classes and predicates in the CodeQL standard libraries for JavaScript and keywords in CodeQL. You can explore these in your IDE using the autocomplete suggestions (`Ctrl+Space`) and jump-to-definition command (`F12`).
 
 Each step has a **Solution** that indicates one possible answer. Note that all queries will need to begin with `import javascript`, but for simplicity this may be omitted below.
 
