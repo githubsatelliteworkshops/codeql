@@ -10,9 +10,12 @@
 
 > There are two workshops on this topic. Both will cover the basics of writing queries in CodeQL. The first will focus on Java, and the second will focus on JavaScript.
 
-## :watch: Workshop times
-1. Thursday May 7 / 7:00am: Finding security vulnerabilities in Java with CodeQL
-1. Thursday May 7 / 9:30am: Finding security vulnerabilities in JavaScript with CodeQL
+## Workshop materials
+
+Please complete the **Prerequisites** section (below) before the workshop.
+The following links contain the content that will be covered during the workshop:
+1. Thursday May 7 / 7:00am PDT: [Finding security vulnerabilities in Java with CodeQL](/java.md)
+1. Thursday May 7 / 9:30am PDT: [Finding security vulnerabilities in JavaScript with CodeQL](/javascript.md)
 
 ## :mega: Prerequisites
 - Install [Visual Studio Code](https://code.visualstudio.com/).
