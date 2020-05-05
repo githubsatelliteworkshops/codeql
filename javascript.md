@@ -205,6 +205,9 @@ Consider creating a new query for these next few steps, or commenting out your e
     select dollarArg, nestedOptionAccess
     ```
     </details>
+    
+## Follow-up material
+- [Tutorial: Analyzing data flow in JavaScript and TypeScript](https://help.semmle.com/QL/learn-ql/javascript/dataflow.html)
 
 ## Acknowledgements
 
