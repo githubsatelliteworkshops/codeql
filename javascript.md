@@ -9,9 +9,9 @@
  - [Setup instructions](#setupinstructions)
  - [Documentation links](#documentationlinks)
  - [Workshop](#workshop)
-   - [Section 1: Finding XML deserialization](#section1)
-   - [Section 2: Find the implementations of the `toObject` method from ContentTypeHandler](#section2)
-   - [Section 3: Unsafe XML deserialization](#section3)
+   - [Section 1: Finding calls to the jQuery `$` function](#section1)
+   - [Section 2: Finding accesses to jQuery plugin options](#section2)
+   - [Section 3: Putting it all together](#section3)
 
 ## Problem statement <a id="problemstatement"></a>
 
@@ -69,7 +69,7 @@ Each step has a **Hint** that describe useful classes and predicates in the Code
 
 Each step has a **Solution** that indicates one possible answer. Note that all queries will need to begin with `import javascript`, but for simplicity this may be omitted below.
 
-### Finding calls to the jQuery `$` function
+### Finding calls to the jQuery `$` function <a id="section1"></a>
 
 1. Find all function call expressions.
     <details>
@@ -119,7 +119,7 @@ Each step has a **Solution** that indicates one possible answer. Note that all q
     ```
     </details>
 
-### Finding accesses to jQuery plugin options
+### Finding accesses to jQuery plugin options <a id="section2"></a>
 Consider creating a new query for these next few steps, or commenting out your earlier solutions and using the same file. We will use the earlier solutions again in the next section.
 
 1. When a jQuery plugin option is accessed, the code generally looks like `something.options.optionName`. First, identify all accesses to a property named `options`.
@@ -156,7 +156,7 @@ Consider creating a new query for these next few steps, or commenting out your e
     ```
     </details>
 
-### Putting it all together
+### Putting it all together <a id="section3"></a>
 
 1. Combine your queries from the two previous sections. Find chained property accesses of the form `something.options.optionName` that are used as the argument of calls to the jQuery `$` function.
     <details>
