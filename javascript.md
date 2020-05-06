@@ -45,9 +45,7 @@ To take part in the workshop you will need to follow these steps to get the Code
 1. [Set up the starter workspace](https://help.semmle.com/codeql/codeql-for-vscode/procedures/setting-up.html#using-the-starter-workspace).
     - **Important**: Don't forget to `git clone --recursive` or `git submodule update --init --remote`, so that you obtain the standard query libraries.
 1. Open the starter workspace: File > Open Workspace > Browse to `vscode-codeql-starter/vscode-codeql-starter.code-workspace`.
-1. Create an account on LGTM.com if you haven't already. You can log in via OAuth using your Google or GitHub account.
-1. Visit the [database downloads page for the vulnerable version of Bootstrap on LGTM.com](https://lgtm.com/projects/g/esbena/bootstrap-pre-27047/ci/#ql).
-1. Download the latest database for JavaScript.
+1. Download the [esbena_bootstrap-pre-27047_javascript CodeQL database](https://github.com/githubsatelliteworkshops/codeql/releases/download/v1.0/esbena_bootstrap-pre-27047_javascript.zip).
 1. Unzip the database.
 1. Import the unzipped database into Visual Studio Code:
     - Click the **CodeQL** icon in the left sidebar.
