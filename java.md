@@ -19,7 +19,7 @@ _Serialization_ is the process of converting in memory objects to text or binary
 
 In languages such as Java, Python and Ruby, deserialization provides the ability to restore not only primitive data, but also complex types such as library and user defined classes. This provides great power and flexibility, but introduces a signficant attack vector if the deserialization happens on untrusted user data without restriction.
 
-[Apache Struts](https://struts.apache.org/) is a popular open-source MVC framework for creating web applications in Java. In 2017, a researcher from the predecessor of the GitHub Security Lab found [CVE-2017-9805](http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-9805), an XML deserialization vulnerability in Apache Struts that would allow remote code execution.
+[Apache Struts](https://struts.apache.org/) is a popular open-source MVC framework for creating web applications in Java. In 2017, a researcher from the predecessor of the [GitHub Security Lab](https://securitylab.github.com/) found [CVE-2017-9805](http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-9805), an XML deserialization vulnerability in Apache Struts that would allow remote code execution.
 
 The problem occurred because included as part of the Apache Struts framework is the ability to accept requests in multiple different formats, or _content types_. It provides a pluggable system for supporting these content types through the [`ContentTypeHandler`](https://struts.apache.org/maven/struts2-plugins/struts2-rest-plugin/apidocs/org/apache/struts2/rest/handler/ContentTypeHandler.html) interface, which provides the following interface method:
 ```java
@@ -302,28 +302,27 @@ CodeQL for Java provides data flow analysis as part of the standard library. You
 
 There are a small number of data flow node types – expression nodes and parameter nodes are most common.
 
-In this section we will create a data flow _path problem_ query by populating this template:
+In this section we will create a data flow query by populating this template:
 
 ```ql
 /**
  * @name Unsafe XML deserialization
- * @kind path-problem
+ * @kind problem
  * @id java/unsafe-deserialization
  */
 import java
-import semmle.code.java.dataflow.DataFlow::DataFlow
-import PathGraph
+import semmle.code.java.dataflow.DataFlow
 
 // TODO add previous class and predicate definitions here
 
-class StrutsUnsafeDeserializationConfig extends Configuration {
+class StrutsUnsafeDeserializationConfig extends DataFlow::Configuration {
   StrutsUnsafeDeserializationConfig() { this = "StrutsUnsafeDeserializationConfig" }
-  override predicate isSource(Node source) {
+  override predicate isSource(DataFlow::Node source) {
     exists(/** TODO fill me in **/ |
       source.asParameter() = /** TODO fill me in **/
     )
   }
-  override predicate isSink(Node sink) {
+  override predicate isSink(DataFlow::Node sink) {
     exists(/** TODO fill me in **/ |
       /** TODO fill me in **/
       sink.asExpr() = /** TODO fill me in **/
@@ -331,9 +330,9 @@ class StrutsUnsafeDeserializationConfig extends Configuration {
   }
 }
 
-from StrutsUnsafeDeserializationConfig config, PathNode source, PathNode sink
-where config.hasFlowPath(source, sink)
-select sink, source, sink, "Unsafe XML deserialization"
+from StrutsUnsafeDeserializationConfig config, DataFlow::Node source, DataFlow::Node sink
+where config.hasFlow(source, sink)
+select sink, "Unsafe XML deserialization"
 ```
 
  1. Complete the `isSource` predicate using the query you wrote for [Section 2](#section2).
@@ -360,7 +359,7 @@ select sink, source, sink, "Unsafe XML deserialization"
     ```
     </details>
 
- 1. Complete the `isSink` predicate by using the `isXMLDeserialized` predicate you wrote for [Section 1](#section1).
+ 1. Complete the `isSink` predicate by using the final query you wrote for [Section 1](#section1). Remember to use the `isXMLDeserialized` predicate!
     <details>
     <summary>Hint</summary>
 
@@ -372,66 +371,77 @@ select sink, source, sink, "Unsafe XML deserialization"
 
     ```ql
       override predicate isSink(Node sink) {
-        exists(MethodAccess fromXML |
-          fromXML.getMethod().getName() = "fromXML" and
-          sink.asExpr() = fromXML.getArgument(0)
+        exists(Expr arg |
+          isXMLDeserialized(arg) and
+          sink.asExpr() = arg
         )
       }
     ```
     </details>
 
-You can now run the completed query.
+You can now run the completed query. You should find exactly one result, which is the CVE reported by our security researchers in 2017!
 
-<details>
-<summary>Completed query</summary>
+For this result, it is easy to verify that it is correct, because both the source and sink are in the same method. However, for many data flow problems this is not the case.
 
-```ql
-/**
- * @name Unsafe XML deserialization
- * @kind path-problem
- * @id java/unsafe-deserialization
- */
-import java
-import semmle.code.java.dataflow.DataFlow::DataFlow
-import PathGraph
+We can update the query so that it not only reports the sink, but it also reports the source and the path to that source. We can do this by making these changes:
+The answer to this is to convert the query to a _path problem_ query. There are five parts we will need to change:
+ - Convert the `@kind` from `problem` to `path-problem`. This tells the CodeQL toolchain to interpret the results of this query as path results.
+ - Add a new import `DataFlow::PathGraph`, which will report the path data alongside the query results.
+ - Change `source` and `sink` variables from `DataFlow::Node` to `DataFlow::PathNode`, to ensure that the nodes retain path information.
+ - Use `hasFlowPath` instead of `hasFlow`.
+ - Change the select to report the `source` and `sink` as the second and third columns. The toolchain combines this data with the path information from `PathGraph` to build the paths.
 
-/** The interface `org.apache.struts2.rest.handler.ContentTypeHandler`. */
-class ContentTypeHandler extends RefType {
-  ContentTypeHandler() {
-    this.hasQualifiedName("org.apache.struts2.rest.handler", "ContentTypeHandler")
-  }
-}
+ 3. Convert your previous query to a path-problem query.
+    <details>
+    <summary>Solution</summary>
 
-/** A `toObject` method on a subtype of `org.apache.struts2.rest.handler.ContentTypeHandler`. */
-class ContentTypeHandlerToObject extends Method {
-  ContentTypeHandlerToObject() {
-    this.getDeclaringType().getASupertype() instanceof ContentTypeHandler and
-    this.hasName("toObject")
-  }
-}
+    ```ql
+    /**
+    * @name Unsafe XML deserialization
+    * @kind path-problem
+    * @id java/unsafe-deserialization
+    */
+    import java
+    import semmle.code.java.dataflow.DataFlow
+    import DataFlow::PathGraph
 
-class StrutsUnsafeDeserializationConfig extends Configuration {
-  StrutsUnsafeDeserializationConfig() { this = "StrutsUnsafeDeserializationConfig" }
-  override predicate isSource(Node source) {
-    exists(ContentTypeHandlerToObject toObjectMethod |
-      source.asParameter() = toObjectMethod.getParameter(0)
-    )
-  }
-  override predicate isSink(Node sink) {
-    exists(MethodAccess fromXML |
-      fromXML.getMethod().getName() = "fromXML" and
-      sink.asExpr() = fromXML.getArgument(0)
-    )
-  }
-}
+    /** The interface `org.apache.struts2.rest.handler.ContentTypeHandler`. */
+    class ContentTypeHandler extends RefType {
+      ContentTypeHandler() {
+        this.hasQualifiedName("org.apache.struts2.rest.handler", "ContentTypeHandler")
+      }
+    }
 
-from StrutsUnsafeDeserializationConfig config, PathNode source, PathNode sink
-where config.hasFlowPath(source, sink)
-select sink, source, sink, "Unsafe XML deserialization"
-```
-</details>
+    /** A `toObject` method on a subtype of `org.apache.struts2.rest.handler.ContentTypeHandler`. */
+    class ContentTypeHandlerToObject extends Method {
+      ContentTypeHandlerToObject() {
+        this.getDeclaringType().getASupertype() instanceof ContentTypeHandler and
+        this.hasName("toObject")
+      }
+    }
 
-You should find one result, which is the CVE reported by our security researchers in 2017. For more information on how the vulnerability was identified, you can read the [blog disclosing the original problem](https://securitylab.github.com/research/apache-struts-vulnerability-cve-2017-9805).
+    class StrutsUnsafeDeserializationConfig extends DataFlow::Configuration {
+      StrutsUnsafeDeserializationConfig() { this = "StrutsUnsafeDeserializationConfig" }
+      override predicate isSource(DataFlow::Node source) {
+        exists(ContentTypeHandlerToObject toObjectMethod |
+          source.asParameter() = toObjectMethod.getParameter(0)
+        )
+      }
+      override predicate isSink(DataFlow::Node sink) {
+        exists(Expr arg |
+          isXMLDeserialized(arg) and
+          sink.asExpr() = arg
+        )
+      }
+    }
+
+    from StrutsUnsafeDeserializationConfig config, DataFlow::PathNode source, DataFlow::PathNode sink
+    where config.hasFlowPath(source, sink)
+    select sink, source, sink, "Unsafe XML deserialization"
+    ```
+    </details>
+
+For more information on how the vulnerability was identified, you can read the [blog disclosing the original problem](https://securitylab.github.com/research/apache-struts-vulnerability-cve-2017-9805).
 
 Although we have created a query from scratch to find this problem, it can also be found with one of our default security queries, [UnsafeDeserialization.ql](https://github.com/github/codeql/blob/master/java/ql/src/Security/CWE/CWE-502/UnsafeDeserialization.ql). You can see this on a [vulnerable copy of Apache Struts](https://github.com/m-y-mo/struts_9805) that has been [analyzed on LGTM.com](https://lgtm.com/projects/g/m-y-mo/struts_9805/snapshot/31a8d6be58033679a83402b022bb89dad6c6e330/files/plugins/rest/src/main/java/org/apache/struts2/rest/handler/XStreamHandler.java?sort=name&dir=ASC&mode=heatmap#x121788d71061ed86:1), our free open source analysis platform.
 
@@ -439,3 +449,4 @@ Although we have created a query from scratch to find this problem, it can also 
 
  - [Tutorial: Analyzing data flow in Java](https://help.semmle.com/QL/learn-ql/java/dataflow.html)
  - [CodeQL training for Java](https://help.semmle.com/QL/learn-ql/ql-training.html#codeql-and-variant-analysis-for-java)
+ - [GitHub Security Lab research blog](https://securitylab.github.com/research)

@@ -71,7 +71,7 @@ Each step has a **Solution** that indicates one possible answer. Note that all q
 
 ### Finding calls to the jQuery `$` function <a id="section1"></a>
 
-1. Find all function call expressions.
+1. Find all function call expressions, such as `alert("hello world")` and `speaker.sayHello("world")`.
     <details>
     <summary>Hint</summary>
 
@@ -86,7 +86,8 @@ Each step has a **Solution** that indicates one possible answer. Note that all q
     ```
     </details>
 
-1. Identify the expression that is used as the first argument for each call.
+1. Identify the expression that is used as the first argument for each call, , such as `alert(<first-argument>)` and `speaker.sayHello(<first-argument>)`.
+
     <details>
     <summary>Hint</summary>
 
@@ -104,7 +105,8 @@ Each step has a **Solution** that indicates one possible answer. Note that all q
     ```
     </details>
 
-1. Filter your results to only those calls to a function named `$`.
+1. Filter your results to only those calls to a function named `$`, such as `$("hello world")` and `speaker.$("world")`.
+
     <details>
     <summary>Hint</summary>
 
@@ -169,7 +171,7 @@ Consider creating a new query for these next few steps, or commenting out your e
     <details>
     <summary>Hint</summary>
 
-    - Notice that `jQuery()` returns a special type of data flow node: a `DataFlow::SourceNode`. Source nodes are places in the program that introduce a new value, from which the flow of data may be tracked.
+    - Notice that `jQuery()` returns a value of type `DataFlow::SourceNode`. Source nodes are places in the program that introduce a new value, from which the flow of data may be tracked.
     - `DataFlow::SourceNode` has a predicate named `getAPropertyRead(string)`, which finds all reads of a particular property on the same object. The string argument is the name of the property.
     </details>
     <details>
@@ -197,13 +199,22 @@ Consider creating a new query for these next few steps, or commenting out your e
     fn.copyText = f
     ```
 
-    The use of intermediate variables and nested expressions are typical source code examples that require use of **data flow analysis** to detect.
+    The use of intermediate variables and nested expressions are typical source code examples that require use of **local data flow analysis** to detect.
 
-    We have already encountered data flow nodes. The CodeQL JavaScript data flow library is very expressive. It allows us to find places in the program that have a value, and reason about where those values may come from or flow to. This is called **local data flow analysis** when it takes place within a single function or scope.
+    Data flow analysis helps us answer questions like: does this expression ever hold a value that originates from a particular other place in the program?
+
+    We have already encountered **data flow nodes**, described by the `DataFlow::Node` CodeQL class. They are places in the program that have a value. They are returned by useful predicates like `jquery()` in the library. 
+
+    These nodes are separate and distinct from the AST (Abstract Syntax Tree, which represents the basic structure of the program) nodes, to allow for flexibility in how data flow is modeled.
+
+    We can visualize the data flow analysis problem as one of finding paths through a directed graph, where the nodes of the graph are data flow nodes, and the edges represent the flow of data between those elements. If a path exists, then the data flows between those two nodes.
     
-    There are predicates available on different types of data flow node that allow us to look for local data flow.
+    The CodeQL JavaScript data flow library is very expressive.
+    It has several classes that describe different places in the program that can have a value. We have seen `SourceNode`s; there are many other forms such as `ValueNode`s, `FunctionNode`s, `ParameterNode`s, and `CallNode`s. You can find our more in the [documentation](https://help.semmle.com/QL/learn-ql/javascript/dataflow.html).
+    
+    When we are looking for the flow of information to or from these nodes within a single function or scope, this is called **local data flow analysis**. The CodeQL library has several predicates available on different types of data flow node that reason about local data flow.
 
-    See the hint for one useful example of such a predicate.
+    You have already seen one such predicate: `SourceNode.getAPropertyRead()`. To complete this step of the workshop, look at the hint for another useful predicate.
 
     <details>
     <summary>Hint</summary>
@@ -229,7 +240,7 @@ Consider creating a new query for these next few steps, or commenting out your e
 
     - Modify your `from` clause so that the variable that describes that jQuery plugin is of type `DataFlow::FunctionNode`. As the name suggests, this is a data flow node that refers to a function definition.
     - `DataFlow::FunctionNode` has a predicate named `getLastParameter()`.
-    - If you want to add a new variable to describe the parameter, it can be of type `DataFlow::ParameterNode`. The data flow library has many different types of node for different elements of the program.
+    - If you want to add a new variable to describe the parameter, it can be of type `DataFlow::ParameterNode`.
     
     </details>
     <details>
@@ -248,15 +259,9 @@ Consider creating a new query for these next few steps, or commenting out your e
 
 We have now identified (a) places in the program which receive jQuery plugin options (which may be untrusted data) and (b) places in the program which are passed to the jQuery `$` function and may be interpreted as HTML. We now want to tie these two together to ask: does the untrusted data from a jQuery plugin option ever _flow_ to the potentially unsafe `$` call?
 
-In program analysis we call this a _data flow_ problem. Data flow analysis helps us answer questions like: does this expression ever hold a value that originates from a particular other place in the program?
+This is also a data flow problem. However, it is larger in scope that the problems we have tackled so far, because the plugin options and the `$` call may be in different functions. We call this a **global data flow** problem.
 
-We can visualize the data flow problem as one of finding paths through a directed graph, where the nodes of the graph are elements in program, and the edges represent the flow of data between those elements. If a path exists, then the data flows between those two nodes.
-
-CodeQL for JavaScript provides data flow analysis as part of the standard library. The library models nodes using the `DataFlow::Node` CodeQL class. These nodes are separate and distinct from the AST (Abstract Syntax Tree, which represents the basic structure of the program) nodes, to allow for flexibility in how data flow is modeled.
-
-There are a small number of data flow node types – expression nodes and parameter nodes are most common.
-
-In this section we will create a data flow _path problem_ query by populating this template:
+In this section we will create a  _path problem_ query capable of looking for global data flow, by populating this template:
 
 ```ql
 /**
@@ -266,8 +271,6 @@ In this section we will create a data flow _path problem_ query by populating th
  */
 import javascript
 import DataFlow::PathGraph
-
-// TODO add previous class and predicate definitions here
 
 class Config extends TaintTracking::Configuration {
   Config() { this = "Config" }
