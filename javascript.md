@@ -252,8 +252,6 @@ In program analysis we call this a _data flow_ problem. Data flow analysis helps
 
 We can visualize the data flow problem as one of finding paths through a directed graph, where the nodes of the graph are elements in program, and the edges represent the flow of data between those elements. If a path exists, then the data flows between those two nodes.
 
-This graph represents the flow of data from the tainted parameter. The nodes of graph represent program elements that have a value, such as function parameters and expressions. The edges of this graph represent flow through these nodes.
-
 CodeQL for JavaScript provides data flow analysis as part of the standard library. The library models nodes using the `DataFlow::Node` CodeQL class. These nodes are separate and distinct from the AST (Abstract Syntax Tree, which represents the basic structure of the program) nodes, to allow for flexibility in how data flow is modeled.
 
 There are a small number of data flow node types – expression nodes and parameter nodes are most common.
