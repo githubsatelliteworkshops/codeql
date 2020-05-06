@@ -71,7 +71,7 @@ Each step has a **Solution** that indicates one possible answer. Note that all q
 
 ### Finding calls to the jQuery `$` function <a id="section1"></a>
 
-1. Find all function call expressions.
+1. Find all function call expressions, such as `alert("hello world")` and `speaker.sayHello("world")`.
     <details>
     <summary>Hint</summary>
 
@@ -86,7 +86,8 @@ Each step has a **Solution** that indicates one possible answer. Note that all q
     ```
     </details>
 
-1. Identify the expression that is used as the first argument for each call.
+1. Identify the expression that is used as the first argument for each call, , such as `alert(<first-argument>)` and `speaker.sayHello(<first-argument>)`.
+
     <details>
     <summary>Hint</summary>
 
@@ -104,7 +105,8 @@ Each step has a **Solution** that indicates one possible answer. Note that all q
     ```
     </details>
 
-1. Filter your results to only those calls to a function named `$`.
+1. Filter your results to only those calls to a function named `$`, such as `$("hello world")` and `speaker.$("world")`.
+
     <details>
     <summary>Hint</summary>
 
