@@ -131,7 +131,7 @@ Each step has a **Solution** that indicates one possible answer. Note that all q
 
     - Calling the predicate `jquery()` returns all values that refer to the `$` function.
     - To find all calls to this function, use the predicate `getACall()`.
-    - Notice that when you call `jquery()`, `getACall()`, and `getAnArgument()` in succession, you get return values of type `DataFlow::Node`, not `Expr`. Thes are **data flow nodes**. They describe a part of the source program that may have a value, and let us do more complex reasoning about this value. We'll learn more about these in the next section.
+    - Notice that when you call `jquery()`, `getACall()`, and `getAnArgument()` in succession, you get return values of type `DataFlow::Node`, not `Expr`. These are **data flow nodes**. They describe a part of the source program that may have a value, and let us do more complex reasoning about this value. We'll learn more about these in the next section.
     - You can convert the data flow node back into an `Expr` using the predicate `asExpr()`.
     </details><details>
     <summary>Solution</summary>
@@ -222,7 +222,7 @@ Consider creating a new query for these next few steps, or commenting out your e
     ```
     </details>
 
-1. Find the last parameters of the jQuery plugin functions that you identified in the previous step. These parameters are the plugin options.
+1. Find the last parameter of the jQuery plugin functions that you identified in the previous step. These parameters are the plugin options.
 
     <details>
     <summary>Hint</summary>
@@ -278,7 +278,7 @@ class Config extends TaintTracking::Configuration {
       source = /** TODO fill me in from Section 2 **/
     )
   }
-  override predicate isSink(Node sink) {
+  override predicate isSink(DataFlow::Node sink) {
     exists(/** TODO fill me in **/ |
       sink = /** TODO fill me in from Section 1 **/
     )
