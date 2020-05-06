@@ -270,8 +270,6 @@ In this section we will create a  _path problem_ query capable of looking for gl
 import javascript
 import DataFlow::PathGraph
 
-// TODO add previous class and predicate definitions here
-
 class Config extends TaintTracking::Configuration {
   Config() { this = "Config" }
   override predicate isSource(DataFlow::Node source) {
