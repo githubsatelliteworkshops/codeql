@@ -44,7 +44,7 @@ To take part in the workshop you will need to follow these steps to get the Code
 3. [Set up the starter workspace](https://help.semmle.com/codeql/codeql-for-vscode/procedures/setting-up.html#using-the-starter-workspace).
     -   ****Important****: Don't forget to `git clone --recursive` or `git submodule update --init --remote`, so that you obtain the standard query libraries.
 4. Open the starter workspace: File > Open Workspace > Browse to `vscode-codeql-starter/vscode-codeql-starter.code-workspace`.
-5. Download and unzip the [apache-struts-91ae344-CVE-2017-9805 database](https://downloads.lgtm.com/snapshots/java/apache/struts/apache-struts-91ae344-CVE-2017-9805.zip).
+5. Download and unzip the [apache_struts_cve_2017_9805.zip database](https://github.com/githubsatelliteworkshops/codeql/releases/download/v1.0/apache_struts_cve_2017_9805.zip).
 6. Choose this database in CodeQL (using `Ctrl + Shift + P` to open the command palette, then selecting "CodeQL: Choose Database").
 7. Create a new file in the `codeql-custom-queries-java` directory called `UnsafeDeserialization.ql`.
 
