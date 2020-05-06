@@ -10,8 +10,8 @@
  - [Documentation links](#documentationlinks)
  - [Workshop](#workshop)
    - [Section 1: Finding calls to the jQuery `$` function](#section1)
-   - [Section 2: Finding accesses to jQuery plugin options](#section2)
-   - [Section 3: Putting it all together](#section3)
+   - [Section 2: Finding jQuery plugin options](#section2)
+   - [Section 3: Finding XSS vulnerabilities](#section3)
 
 ## Problem statement <a id="problemstatement"></a>
 
@@ -25,7 +25,7 @@ The core mistake in these plugins was the use of the omnipotent jQuery `$` funct
 let text = $(options.textSrcSelector).text();
 ```
 
-This plugin decides which HTML element to read text from by evaluating `options.textSrcSelector` as a CSS-selector, or that is the intention at least. The problem in this example is that `$(options.textSrcSelector)` will execute JavaScript code instead if the value of `options.textSrcSelector` is a string like `"<img src=x onerror=alert(1)>".` 
+This plugin decides which HTML element to read text from by evaluating `options.textSrcSelector` as a CSS-selector, or that is the intention at least. The problem in this example is that `$(options.textSrcSelector)` will execute JavaScript code instead if the value of `options.textSrcSelector` is a string like `"<img src=x onerror=alert(1)>".` The values in `options` cannot always be trusted.
 
 In security terminology, jQuery plugin options are a **source** of user input, and the argument of `$` is an XSS **sink**.
 
@@ -90,7 +90,9 @@ Each step has a **Solution** that indicates one possible answer. Note that all q
     <details>
     <summary>Hint</summary>
 
-    `Expr`, `CallExpr.getArgument(int)`, `and`, `where`
+    - Add another variable to your `from` clause. This can be named `dollarArg` and have type `Expr`.
+    - Add a `where` clause.
+    - `CallExpr` has a predicate `getArgument(int)` to find the argument at a 0-based index.
     </details>
     <details>
     <summary>Solution</summary>
@@ -106,7 +108,9 @@ Each step has a **Solution** that indicates one possible answer. Note that all q
     <details>
     <summary>Hint</summary>
 
-    `CallExpr.getCalleeName()`
+    - `CallExpr` has a predicate `getCalleeName()` to find the name of the function being called.
+    - Use the `and` keyword to add conditions to your query.
+    - Use the `=` operator to assert that two values are equal.
     </details><details>
     <summary>Solution</summary>
     
@@ -119,93 +123,252 @@ Each step has a **Solution** that indicates one possible answer. Note that all q
     ```
     </details>
 
-### Finding accesses to jQuery plugin options <a id="section2"></a>
+1. So far we have looked for the function name `$`. Are there other ways of calling the jQuery `$` function? Perhaps the CodeQL library can handle these for us?
+
+    The CodeQL standard library for JavaScript has a built-in predicate `jquery()` to describe references to `$`. Expand the hint for details, and modify your query to use it.
+    <details>
+    <summary>Hint</summary>
+
+    - Calling the predicate `jquery()` returns all values that refer to the `$` function.
+    - To find all calls to this function, use the predicate `getACall()`.
+    - Notice that when you call `jquery()`, `getACall()`, and `getAnArgument()` in succession, you get return values of type `DataFlow::Node`, not `Expr`. Thes are **data flow nodes**. They describe a part of the source program that may have a value, and let us do more complex reasoning about this value. We'll learn more about these in the next section.
+    - You can convert the data flow node back into an `Expr` using the predicate `asExpr()`.
+    </details><details>
+    <summary>Solution</summary>
+    
+    ```
+    from Expr dollarArg
+    where
+      dollarArg = jquery().getACall().getArgument(0).asExpr()
+    select dollarArg
+    ```
+
+    OR
+
+    ```
+    from DataFlow::Node dollarArg
+    where
+      dollarArg = jquery().getACall().getArgument(0)
+    select dollarArg
+    ```
+    
+    </details>
+
+### Finding jQuery plugin options <a id="section2"></a>
+jQuery plugins are usually defined by assigning a value to a property of the `$.fn` object:
+
+  ```javascript
+  $.fn.copyText = function() { ... } // this function is a jQuery plugin
+  ```
+
+In this step, we will find such plugins, and their options.
+
 Consider creating a new query for these next few steps, or commenting out your earlier solutions and using the same file. We will use the earlier solutions again in the next section.
 
-1. When a jQuery plugin option is accessed, the code generally looks like `something.options.optionName`. First, identify all accesses to a property named `options`.
+1. You have already seen how to find references to the jQuery `$` function. Now find all places in the code that read the property `$.fn`.
     <details>
     <summary>Hint</summary>
 
-    Property accesses are called `PropAccess` in the CodeQL JavaScript libraries. Use `PropAccess.getPropertyName()` to identify the property.
+    - Notice that `jQuery()` returns a special type of data flow node: a `DataFlow::SourceNode`. Source nodes are places in the program that introduce a new value, from which the flow of data may be tracked.
+    - `DataFlow::SourceNode` has a predicate named `getAPropertyRead(string)`, which finds all reads of a particular property on the same object. The string argument is the name of the property.
     </details>
     <details>
     <summary>Solution</summary>
     
     ```
-    from PropAccess optionsAccess
-    where optionsAccess.getPropertyName() = "options"
-    select optionsAccess
+    from DataFlow::Node n
+    where n = jquery().getAPropertyRead("fn")
+    select n
     ```
     </details>
 
-1. Take your query from the previous step, and modify it to find chained property accesses of the form `something.options.optionName`.
+1. Find the functions that are assigned to a property of `$.fn`. These are jQuery plugins.
+
+    Remember the previous example:
+    ```javascript
+    $.fn.copyText = function() { ... } // this function is a jQuery plugin
+    ```
+
+    There might be some variation in how this code is written. For example, we might see intermediate assignments to local variables:
+     
+    ```javascript
+    let fn = $.fn
+    let f = function() { ... } // this function is a jQuery plugin
+    fn.copyText = f
+    ```
+
+    The use of intermediate variables and nested expressions are typical source code examples that require use of **data flow analysis** to detect.
+
+    We have already encountered data flow nodes. The CodeQL JavaScript data flow library is very expressive. It allows us to find places in the program that have a value, and reason about where those values may come from or flow to. This is called **local data flow analysis** when it takes place within a single function or scope.
+    
+    There are predicates available on different types of data flow node that allow us to look for local data flow.
+
+    See the hint for one useful example of such a predicate.
+
     <details>
     <summary>Hint</summary>
 
-    There are two property accesses here, with the second being made upon the result of the first. `PropAccess.getBase()` gives the object whose property is being accessed.
+    - `DataFlow::SourceNode` has a predicate named `getAPropertySource()`, which finds a source node whose value is stored in a property of this node.
+    - In the previous step, we used `getAPropertyRead(string)` to identify the source node `$.fn`. Now try to find a value stored in a property of this source node `$.fn`.
+    
     </details>
     <details>
     <summary>Solution</summary>
     
     ```
-    from PropAccess optionsAccess, PropAccess nestedOptionAccess
+    from DataFlow::FunctionNode plugin
+    where plugin = jquery().getAPropertyRead("fn").getAPropertySource()
+    select plugin
+    ```
+    </details>
+
+1. Find the last parameters of the jQuery plugin functions that you identified in the previous step. These parameters are the plugin options.
+
+    <details>
+    <summary>Hint</summary>
+
+    - Modify your `from` clause so that the variable that describes that jQuery plugin is of type `DataFlow::FunctionNode`. As the name suggests, this is a data flow node that refers to a function definition.
+    - `DataFlow::FunctionNode` has a predicate named `getLastParameter()`.
+    - If you want to add a new variable to describe the parameter, it can be of type `DataFlow::ParameterNode`. The data flow library has many different types of node for different elements of the program.
+    
+    </details>
+    <details>
+    <summary>Solution</summary>
+    
+    ```
+    from DataFlow::FunctionNode plugin, DataFlow::ParameterNode optionsParam
     where
-      optionsAccess.getPropertyName() = "options" and
-      nestedOptionAccess.getBase() = optionsAccess
-    select nestedOptionAccess
+      plugin = jquery().getAPropertyRead("fn").getAPropertySource() and
+      optionsParam = plugin.getLastParameter()
+    select plugin, optionsParam
     ```
     </details>
 
 ### Putting it all together <a id="section3"></a>
 
-1. Combine your queries from the two previous sections. Find chained property accesses of the form `something.options.optionName` that are used as the argument of calls to the jQuery `$` function.
+We have now identified (a) places in the program which receive jQuery plugin options (which may be untrusted data) and (b) places in the program which are passed to the jQuery `$` function and may be interpreted as HTML. We now want to tie these two together to ask: does the untrusted data from a jQuery plugin option ever _flow_ to the potentially unsafe `$` call?
+
+In program analysis we call this a _data flow_ problem. Data flow analysis helps us answer questions like: does this expression ever hold a value that originates from a particular other place in the program?
+
+We can visualize the data flow problem as one of finding paths through a directed graph, where the nodes of the graph are elements in program, and the edges represent the flow of data between those elements. If a path exists, then the data flows between those two nodes.
+
+This graph represents the flow of data from the tainted parameter. The nodes of graph represent program elements that have a value, such as function parameters and expressions. The edges of this graph represent flow through these nodes.
+
+CodeQL for JavaScript provides data flow analysis as part of the standard library. The library models nodes using the `DataFlow::Node` CodeQL class. These nodes are separate and distinct from the AST (Abstract Syntax Tree, which represents the basic structure of the program) nodes, to allow for flexibility in how data flow is modeled.
+
+There are a small number of data flow node types – expression nodes and parameter nodes are most common.
+
+In this section we will create a data flow _path problem_ query by populating this template:
+
+```ql
+/**
+ * @name Cross-site scripting vulnerable plugin
+ * @kind path-problem
+ * @id js/xss-unsafe-plugin
+ */
+import javascript
+import DataFlow::PathGraph
+
+// TODO add previous class and predicate definitions here
+
+class Config extends TaintTracking::Configuration {
+  Config() { this = "Config" }
+  override predicate isSource(DataFlow::Node source) {
+    exists(/** TODO fill me in from Section 2 **/ |
+      source = /** TODO fill me in from Section 2 **/
+    )
+  }
+  override predicate isSink(Node sink) {
+    exists(/** TODO fill me in **/ |
+      sink = /** TODO fill me in from Section 1 **/
+    )
+  }
+}
+
+from Config config, DataFlow::PathNode source, DataFlow::PathNode sink
+where config.hasFlowPath(source, sink)
+select sink, source, sink, "Potential XSS vulnerability in plugin."
+```
+
+ 1. Complete the `isSource` predicate using the query you wrote for [Section 2](#section2).
+
     <details>
     <summary>Hint</summary>
-    Declare all the variables you need in the `from` section, and use the `and` keyword to combine all your logical conditions.
+
+    - You can translate from a query clause to a predicate by:
+       - Converting the variable declarations in the `from` part to the variable declarations of an `exists`
+       - Placing the `where` clause conditions (if any) in the body of the exists
+       - Adding a condition which equates the `select` to one of the parameters of the predicate.
+    - Remember that the source of untrusted data is the jQuery plugin options parameter.
+
     </details>
     <details>
     <summary>Solution</summary>
-    
-    ```
-    from CallExpr dollarCall, Expr dollarArg, PropAccess optionsAccess, PropAccess nestedOptionAccess
-    where
-      dollarCall.getArgument(0) = dollarArg and
-      dollarCall.getCalleeName() = "$" and
-      optionsAccess.getPropertyName() = "options" and
-      nestedOptionAccess.getBase() = optionsAccess and
-      dollarArg = nestedOptionAccess
-    select dollarArg
+
+    ```ql
+      override predicate isSource(DataFlow::Node source) {
+        exists(DataFlow::FunctionNode plugin |
+          plugin = jquery().getAPropertyRead("fn").getAPropertySource() and
+          source = plugin.getLastParameter()
+        )
+      }
     ```
     </details>
 
-1. (Bonus) The solution to step 2 should result in a query with three alerts on the unpatched Bootstrap codebase, two of which are true positives that were fixed in the linked pull request. There are however additional vulnerabilities that are beyond the capabilities of a purely syntactic query such as the one we have written. For example, the access to the jQuery option (`something.options.optionName`) is not always used directly as the argument of the call to `$`: it might be assigned first to a local variable, which is then passed to `$`.
-
-    The use of intermediate variables and nested expressions are typical source code examples that require use of **data flow analysis** to detect.
-
-    To find one more variant of this vulnerability, try adjusting the query to use the JavaScript data flow library a tiny bit, instead of relying purely on the syntactic structure of the vulnerability. See the hint for more details.
-
+ 1. Complete the `isSink` predicate by using the query you wrote for [Section 1](#section1).
     <details>
     <summary>Hint</summary>
 
-    - If we have an AST node, such as an `Expr`, then [`flow()`](https://help.semmle.com/qldoc/javascript/semmle/javascript/AST.qll/predicate.AST$AST$ValueNode$flow.0.html) will convert it into a __data flow node__, which we can use to reason about the flow of information to/from this expression.
-    - If we have a data flow node, then [`getALocalSource()`](https://help.semmle.com/qldoc/javascript/semmle/javascript/dataflow/DataFlow.qll/predicate.DataFlow$DataFlow$Node$getALocalSource.0.html) will give us another data flow node in the same function whose value ends up in this node.
-    - If we have a data flow node, then `asExpr()` will turn it back into an AST expression, if possible.
+    - Complete the same process as above.
+    - Remember that the argument of a call to `$` is a sink for XSS vulnerabilities.
+
     </details>
     <details>
     <summary>Solution</summary>
-    
-    ```
-    from CallExpr dollarCall, Expr dollarArg, PropAccess optionsAccess, PropAccess nestedOptionAccess
-    where
-      dollarCall.getArgument(0) = dollarArg and
-      dollarCall.getCalleeName() = "$" and
-      optionsAccess.getPropertyName() = "options" and
-      nestedOptionAccess.getBase() = optionsAccess and
-      dollarArg.flow().getALocalSource().asExpr() = nestedOptionAccess
-    select dollarArg, nestedOptionAccess
+
+    ```ql
+      override predicate isSink(DataFlow::Node sink) {
+        sink = jquery().getACall().getArgument(0)
+      }
     ```
     </details>
-    
+
+1. You can now run the completed query. This should find 5 results on the unpatched Bootstrap codebase.
+
+    <details>
+    <summary>Completed query</summary>
+
+      ```ql
+      /**
+      * @name Cross-site scripting vulnerable plugin
+      * @kind path-problem
+      * @id js/xss-unsafe-plugin
+      */
+
+      import javascript
+      import DataFlow::PathGraph
+
+      class Configuration extends TaintTracking::Configuration {
+        Configuration() { this = "XssUnsafeJQueryPlugin" }
+
+        override predicate isSource(DataFlow::Node source) {
+          exists(DataFlow::FunctionNode plugin |
+            plugin = jquery().getAPropertyRead("fn").getAPropertySource() and
+            source = plugin.getLastParameter()
+          )
+        }
+
+        override predicate isSink(DataFlow::Node sink) {
+          sink = jquery().getACall().getArgument(0)
+        }
+      }
+
+      from Configuration cfg, DataFlow::PathNode source, DataFlow::PathNode sink
+      where cfg.hasFlowPath(source, sink)
+      select sink, source, sink, "Potential XSS vulnerability in plugin."
+      ```
+    </details>
+
 ## Follow-up material
 - [Tutorial: Analyzing data flow in JavaScript and TypeScript](https://help.semmle.com/QL/learn-ql/javascript/dataflow.html)
 
