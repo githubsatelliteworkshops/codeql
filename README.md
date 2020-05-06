@@ -25,8 +25,8 @@ The following links contain the content that will be covered during the workshop
   - **Important:** Don't forget to use `git clone --recursive` or `git submodule update --init --remote` to update the submodules when you clone this repository. This allows you to obtain the standard CodeQL query libraries.
   - Open the starter workspace in Visual Studio Code: **File** > **Open Workspace** > Browse to `vscode-codeql-starter/vscode-codeql-starter.code-workspace` in your checkout of the starter workspace.
 - Download and add the CodeQL database to be used in the workshop:
-  - If you are attending **Finding security vulnerabilities in Java with CodeQL**, please download [this CodeQL database](https://downloads.lgtm.com/snapshots/java/apache/struts/apache-struts-91ae344-CVE-2017-9805.zip).
-  - If you are attending **Finding security vulnerabilities in JavaScript with CodeQL**, please visit [this project page on LGTM.com](https://lgtm.com/projects/g/esbena/bootstrap-pre-27047/ci/#ql), create an account (you can log in via OAuth using a GitHub account), and click to download the latest database for JavaScript.
+  - If you are attending **Finding security vulnerabilities in Java with CodeQL**, please download [this CodeQL database](https://github.com/githubsatelliteworkshops/codeql/releases/download/v1.0/apache_struts_cve_2017_9805.zip).
+  - If you are attending **Finding security vulnerabilities in JavaScript with CodeQL**, please download [this CodeQL database](https://github.com/githubsatelliteworkshops/codeql/releases/download/v1.0/esbena_bootstrap-pre-27047_javascript.zip)
   - Unzip the database.
   - Import the unzipped database into Visual Studio Code:
     - Click the CodeQL icon in the left sidebar.
