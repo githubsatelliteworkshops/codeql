@@ -405,6 +405,13 @@ The answer to this is to convert the query to a _path problem_ query. There are 
     import semmle.code.java.dataflow.DataFlow
     import DataFlow::PathGraph
 
+    predicate isXMLDeserialized(Expr arg) {
+      exists(MethodAccess fromXML |
+        fromXML.getMethod().getName() = "fromXML" and
+        arg = fromXML.getArgument(0)
+      )
+    }
+
     /** The interface `org.apache.struts2.rest.handler.ContentTypeHandler`. */
     class ContentTypeHandler extends RefType {
       ContentTypeHandler() {
