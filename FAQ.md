@@ -2,7 +2,7 @@
 
 ## General
 - **Will the slides be available?**
-  - Yes, in this repo
+  - Yes, [here](https://github.com/githubsatelliteworkshops/codeql/blob/master/satellite-2020-workshops-codeql.pdf)
   
 ## CodeQL setup 
 - **I’m getting `could not resolve module java` and queries don’t seem to be running… did I miss something obvious in setting this up?**
