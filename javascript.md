@@ -78,7 +78,7 @@ Each step has a **Solution** that indicates one possible answer. Note that all q
      <details>
     <summary>Solution</summary>
     
-    ```
+    ```ql
     from CallExpr dollarCall
     select dollarCall
     ```
@@ -96,7 +96,7 @@ Each step has a **Solution** that indicates one possible answer. Note that all q
     <details>
     <summary>Solution</summary>
     
-    ```
+    ```ql
     from CallExpr dollarCall, Expr dollarArg
     where dollarArg = dollarCall.getArgument(0)
     select dollarArg
@@ -114,7 +114,7 @@ Each step has a **Solution** that indicates one possible answer. Note that all q
     </details><details>
     <summary>Solution</summary>
     
-    ```
+    ```ql
     from CallExpr dollarCall, Expr dollarArg
     where
       dollarArg = dollarCall.getArgument(0) and
@@ -132,11 +132,11 @@ Each step has a **Solution** that indicates one possible answer. Note that all q
     - Calling the predicate `jquery()` returns all values that refer to the `$` function.
     - To find all calls to this function, use the predicate `getACall()`.
     - Notice that when you call `jquery()`, `getACall()`, and `getAnArgument()` in succession, you get return values of type `DataFlow::Node`, not `Expr`. These are **data flow nodes**. They describe a part of the source program that may have a value, and let us do more complex reasoning about this value. We'll learn more about these in the next section.
-    - You can convert the data flow node back into an `Expr` using the predicate `asExpr()`.
+    - You can change your `dollarArg` variable to have type `DataFlow::Node`, or convert the data flow node back into an `Expr` using the predicate `asExpr()`.
     </details><details>
     <summary>Solution</summary>
     
-    ```
+    ```ql
     from Expr dollarArg
     where
       dollarArg = jquery().getACall().getArgument(0).asExpr()
@@ -145,7 +145,7 @@ Each step has a **Solution** that indicates one possible answer. Note that all q
 
     OR
 
-    ```
+    ```ql
     from DataFlow::Node dollarArg
     where
       dollarArg = jquery().getACall().getArgument(0)
@@ -168,14 +168,14 @@ Consider creating a new query for these next few steps, or commenting out your e
 1. You have already seen how to find references to the jQuery `$` function. Now find all places in the code that read the property `$.fn`.
     <details>
     <summary>Hint</summary>
-
+    - Declare a new variable of type `DataFlow::Node` to hold the results.
     - Notice that `jQuery()` returns a value of type `DataFlow::SourceNode`. Source nodes are places in the program that introduce a new value, from which the flow of data may be tracked.
     - `DataFlow::SourceNode` has a predicate named `getAPropertyRead(string)`, which finds all reads of a particular property on the same object. The string argument is the name of the property.
     </details>
     <details>
     <summary>Solution</summary>
     
-    ```
+    ```ql
     from DataFlow::Node n
     where n = jquery().getAPropertyRead("fn")
     select n
@@ -224,8 +224,8 @@ Consider creating a new query for these next few steps, or commenting out your e
     <details>
     <summary>Solution</summary>
     
-    ```
-    from DataFlow::FunctionNode plugin
+    ```ql
+    from DataFlow::Node plugin
     where plugin = jquery().getAPropertyRead("fn").getAPropertySource()
     select plugin
     ```
@@ -244,7 +244,7 @@ Consider creating a new query for these next few steps, or commenting out your e
     <details>
     <summary>Solution</summary>
     
-    ```
+    ```ql
     from DataFlow::FunctionNode plugin, DataFlow::ParameterNode optionsParam
     where
       plugin = jquery().getAPropertyRead("fn").getAPropertySource() and
@@ -278,9 +278,7 @@ class Config extends TaintTracking::Configuration {
     )
   }
   override predicate isSink(DataFlow::Node sink) {
-    exists(/** TODO fill me in **/ |
-      sink = /** TODO fill me in from Section 1 **/
-    )
+    sink = /** TODO fill me in from Section 1 **/
   }
 }
 
@@ -319,7 +317,8 @@ select sink, source, sink, "Potential XSS vulnerability in plugin."
     <summary>Hint</summary>
 
     - Complete the same process as above.
-    - Remember that the argument of a call to `$` is a sink for XSS vulnerabilities.
+    - We already found a `DataFlow::Node` in Section 1 as the result of calling `jquery()` and predicates on it.
+    - Remember that the first argument of a call to `$` is a sink for XSS vulnerabilities.
 
     </details>
     <details>
@@ -368,9 +367,11 @@ select sink, source, sink, "Potential XSS vulnerability in plugin."
       ```
     </details>
 
-## Follow-up material
-- [Tutorial: Analyzing data flow in JavaScript and TypeScript](https://help.semmle.com/QL/learn-ql/javascript/dataflow.html)
+## What's next?
+- Read the [tutorial on analyzing data flow in JavaScript and TypeScript](https://help.semmle.com/QL/learn-ql/javascript/dataflow.html).
+- Try out the latest CodeQL Capture-the-Flag challenge on the [GitHub Security Lab website](https://securitylab.github.com/ctf) for a chance to win a prize! Or try one of the older Capture-the-Flag challenges to improve your CodeQL skills.
+- Try out a CodeQL course on [GitHub Learning Lab](https://lab.github.com/githubtraining/codeql-u-boot-challenge-(cc++)).
 
 ## Acknowledgements
 
-This is a reduced version of a Capture-the-Flag challenge devised by @esbena, available at https://securitylab.github.com/ctf/jquery. Try out the full version!
+This is a reduced version of a Capture-the-Flag challenge devised by @esbena, available at https://securitylab.github.com/ctf/jquery. Try out the full version! Thanks to our moderators for valuable feedback on the workshop.
