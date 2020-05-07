@@ -366,11 +366,15 @@ select sink, source, sink, "Potential XSS vulnerability in plugin."
       select sink, source, sink, "Potential XSS vulnerability in plugin."
       ```
     </details>
+    
+We have created a query from scratch to find this problem. A production version of this query can be found as part of the default set of CodeQL security queries: [UnsafeJQueryPlugin.ql](https://github.com/github/codeql/blob/master/javascript/ql/src/Security/CWE-079/UnsafeJQueryPlugin.ql). You can [see the results on a vulnerable copy of Bootstrap](https://lgtm.com/projects/g/esbena/bootstrap-pre-27047?mode=tree&ruleFocus=1511421786841) that has been analyzed on LGTM.com, our free open source analysis platform.
 
 ## What's next?
 - Read the [tutorial on analyzing data flow in JavaScript and TypeScript](https://help.semmle.com/QL/learn-ql/javascript/dataflow.html).
 - Try out the latest CodeQL Capture-the-Flag challenge on the [GitHub Security Lab website](https://securitylab.github.com/ctf) for a chance to win a prize! Or try one of the older Capture-the-Flag challenges to improve your CodeQL skills.
 - Try out a CodeQL course on [GitHub Learning Lab](https://lab.github.com/githubtraining/codeql-u-boot-challenge-(cc++)).
+- Read about more vulnerabilities found using CodeQL on the [GitHub Security Lab research blog](https://securitylab.github.com/research).
+- Explore the [open-source CodeQL queries and libraries](https://github.com/github/codeql/blob/master/CONTRIBUTING.md), and [learn how to contribute a new query](https://github.com/github/codeql/blob/master/CONTRIBUTING.md).
 
 ## Acknowledgements
 
