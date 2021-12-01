@@ -35,8 +35,8 @@ The following links contain the content that will be covered during the workshop
 
 ## :books: Resources
 - [Learning CodeQL - Documentation](https://codeql.github.com/docs/)
-- [learning codeql for java](https://codeql.github.com/docs/codeql-language-guides/codeql-for-java/)
-- [learning codeql for javascript](https://codeql.github.com/docs/codeql-language-guides/codeql-for-javascript/)
-- [using the codeql extension for vs code](https://codeql.github.com/docs/codeql-for-visual-studio-code/)
-- more about codeql on [github security lab](https://securitylab.github.com/get-involved/)
+- [Learning CodeQL for Java](https://codeql.github.com/docs/codeql-language-guides/codeql-for-java/)
+- [Learning CodeQL for JavaScript](https://codeql.github.com/docs/codeql-language-guides/codeql-for-javascript/)
+- [Using the CodeQL extension for VS Code](https://codeql.github.com/docs/codeql-for-visual-studio-code/)
+- More about CodeQL on [GitHub Security Lab](https://securitylab.github.com/get-involved/)
 - CodeQL on [GitHub Learning Lab](https://lab.github.com/githubtraining/codeql-u-boot-challenge-(cc++))
