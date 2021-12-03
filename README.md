@@ -34,7 +34,7 @@ The following links contain the content that will be covered during the workshop
     - Choose the unzipped database directory on your filesystem.
 
 ## :books: Resources
-- [Learning CodeQL - Documentation](https://codeql.github.com/docs/)
+- [CodeQL docs](https://codeql.github.com/docs/)
 - [Learning CodeQL for Java](https://codeql.github.com/docs/codeql-language-guides/codeql-for-java/)
 - [Learning CodeQL for JavaScript](https://codeql.github.com/docs/codeql-language-guides/codeql-for-javascript/)
 - [Using the CodeQL extension for VS Code](https://codeql.github.com/docs/codeql-for-visual-studio-code/)
