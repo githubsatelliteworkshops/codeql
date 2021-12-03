@@ -34,9 +34,9 @@ The following links contain the content that will be covered during the workshop
     - Choose the unzipped database directory on your filesystem.
 
 ## :books: Resources
-- [Learning CodeQL](https://help.semmle.com/QL/learn-ql)
-- [Learning CodeQL for Java](https://help.semmle.com/QL/learn-ql/java/ql-for-java.html)
-- [Learning CodeQL for JavaScript](https://help.semmle.com/QL/learn-ql/javascript/ql-for-javascript.html)
-- [Using the CodeQL extension for VS Code](https://help.semmle.com/codeql/codeql-for-vscode.html)
-- More about CodeQL on [GitHub Security Lab](https://securitylab.github.com/tools/codeql)
+- [CodeQL docs](https://codeql.github.com/docs/)
+- [CodeQL for Java](https://codeql.github.com/docs/codeql-language-guides/codeql-for-java/)
+- [CodeQL for JavaScript](https://codeql.github.com/docs/codeql-language-guides/codeql-for-javascript/)
+- [CodeQL for Visual Studio Code](https://codeql.github.com/docs/codeql-for-visual-studio-code/)
+- More about CodeQL on [GitHub Security Lab](https://securitylab.github.com/get-involved/)
 - CodeQL on [GitHub Learning Lab](https://lab.github.com/githubtraining/codeql-u-boot-challenge-(cc++))
