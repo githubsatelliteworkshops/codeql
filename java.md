@@ -453,8 +453,8 @@ For more information on how the vulnerability was identified, you can read the [
 Although we have created a query from scratch to find this problem, it can also be found with one of our default security queries, [UnsafeDeserialization.ql](https://github.com/github/codeql/blob/master/java/ql/src/Security/CWE/CWE-502/UnsafeDeserialization.ql). You can see this on a [vulnerable copy of Apache Struts](https://github.com/m-y-mo/struts_9805) that has been [analyzed on LGTM.com](https://lgtm.com/projects/g/m-y-mo/struts_9805/snapshot/31a8d6be58033679a83402b022bb89dad6c6e330/files/plugins/rest/src/main/java/org/apache/struts2/rest/handler/XStreamHandler.java?sort=name&dir=ASC&mode=heatmap#x121788d71061ed86:1), our free open source analysis platform.
 
 ## What's next?
-- Read the [tutorial on analyzing data flow in Java](https://help.semmle.com/QL/learn-ql/java/dataflow.html).
-- Go through more [CodeQL training materials for Java](https://help.semmle.com/QL/learn-ql/ql-training.html#codeql-and-variant-analysis-for-java).
+- Read the [tutorial on analyzing data flow in Java](https://codeql.github.com/docs/codeql-language-guides/analyzing-data-flow-in-java/#analyzing-data-flow-in-java).
+- Go through more [CodeQL training materials for Java](https://codeql.github.com/docs/codeql-language-guides/codeql-for-java/).
 - Try out the latest CodeQL Java Capture-the-Flag challenge on the [GitHub Security Lab website](https://securitylab.github.com/ctf) for a chance to win a prize! Or try one of the older Capture-the-Flag challenges to improve your CodeQL skills.
 - Try out a CodeQL course on [GitHub Learning Lab](https://lab.github.com/githubtraining/codeql-u-boot-challenge-(cc++)).
 - Read about more vulnerabilities found using CodeQL on the [GitHub Security Lab research blog](https://securitylab.github.com/research).
