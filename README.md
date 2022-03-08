@@ -21,7 +21,7 @@ The following links contain the content that will be covered during the workshop
 - Install [Visual Studio Code](https://code.visualstudio.com/).
 - Install the [CodeQL extension for Visual Studio Code](https://help.semmle.com/codeql/codeql-for-vscode/procedures/setting-up.html).
 - You do _not_ need to install the CodeQL CLI: the extension will handle this for you.
-- Set up the [CodeQL starter workspace](https://help.semmle.com/codeql/codeql-for-vscode/procedures/setting-up.html#using-the-starter-workspace).
+- Set up the [CodeQL starter workspace](https://github.com/github/vscode-codeql-starter#vscode-codeql-starter).
   - **Important:** Don't forget to use `git clone --recursive` or `git submodule update --init --remote` to update the submodules when you clone this repository. This allows you to obtain the standard CodeQL query libraries.
   - Open the starter workspace in Visual Studio Code: **File** > **Open Workspace** > Browse to `vscode-codeql-starter/vscode-codeql-starter.code-workspace` in your checkout of the starter workspace.
 - Download and add the CodeQL database to be used in the workshop:
